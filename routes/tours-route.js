@@ -20,7 +20,7 @@ router
   .delete(tourController.deleteTour);
 
 router
-  .route('/name/:name')
+  .route('/findByName')
   .get(tourController.getTourByName)
   .patch(tourController.updateTour)
   .delete(tourController.deleteTour);

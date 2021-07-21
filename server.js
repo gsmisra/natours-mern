@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
 const env = require('dotenv');
+env.config({ path: './config.env' });
+
 const app = require('./app');
 
-env.config({ path: './config.env' });
 
 /* DB connection is taken form the config.env file. Here the DB connection string is the Mongo Atlas connction */
 const DB = process.env.DATABASE.replace('<PASSWORD>',process.env.DATABASE_PASSWORD);
