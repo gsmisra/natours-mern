@@ -1,100 +1,26 @@
 const fs = require('fs');
 const Tour = require('../model/tour-model');
+const APIFeature = require('../utils/api-features');
 
-/* Read file outside the event loop */
-/* 
-  const tours = JSON.parse(
-  fs.readFileSync(`${__dirname}../../data/tours-simple.json`, (err, data) => {
-    if (err) console.log('Unable to read file');
-    if (err) return 'No data';
-  })
-); 
-*/
 
-/* Middleware to check if the data from the file is valid or not */
-/* exports.checkTourData = (req, res, next) => {
-  if (!req.body.name || !req.body.price) {
-    return res.status(400).json({
-      status: 'fail',
-      msg: 'request json body must contain name and price details',
-      sampleData: {
-        name: 'middleware check',
-        price: 1000,
-        duration: 12,
-        maxGroupSize: 25,
-        difficulty: 'medium',
-        ratingsAverage: 4.7,
-        ratingsQuantity: 37,
-      },
-    });
-  }
+/* Middleware function to add alias to the getAllTour function */
+exports.aliasTopTours = async (req, res, next) => {
+  req.query.limit = '3';
+  req.query.sort = '-ratingsAverage,price';
+  req.query.fields = 'name,price,ratingsAverage,summary,difficulty';
 
   next();
-}; */
-
-
-/* This function is not needed anymore as the data validation is now done in the mongoose data model layer */
-/* Middleware to check the id of the search param is valid */
-/* exports.checkId = (req, res, next, val) => {
-  if (req.params.id * 1 > tours.length) {
-    return res.status(404).send({
-      status: 'failed',
-      msg: 'tour id searched is invalid',
-      source: 'checkid middleware - tour router',
-    });
-  }
-
-  next();
-}; */
+}
 
 exports.getAllTours = async (req, res) => {
   try{
-    /* 
-      IMPORTANT: Here we use the {...} to 1st destructure the object and then
-       {} will store all the destructured objects in one new object.
-    */
-    const queryObject = {...req.query};
-    const excludedFields = ['page', 'limit', 'fields', 'sort'];
-    
-    /* Now remove the above fields from our query object */
-    excludedFields.forEach(el => {
-      delete queryObject[el];
-    });
-
-    console.log(req.query);
-
-    /* Advanced filtering */
-    let queryString = JSON.stringify(queryObject);
-
-    /* Now we replace the gte, lte, gt, lt with the mongo $get... expressions */
-    /* Not sure what the \b is for. The g is for replace all. The ${match} is a callback param of the replace method */
-    queryString = queryString.replace(/\b( gte|gt|lte|lt|regex )\b/g, match => `$${match}`);
-        
-    /* First we build the query. Since we have  */
-    let query =  Tour.find(JSON.parse(queryString)); //Mongoose find() method to get all data form table
-
-    /* Then sort the result based on some condition */
-     if(req.query.sort) {
-        const sortBy = req.query.sort.split(',').join(' ');      
-        qurey = query.sort( sortBy );
-    } else {
-      query = query.sort('-createdAt');
-    }
-
-    /* Field limitting */
-    if(req.query.fields){
-      const fields = req.query.fields.split(',').join(' ');
-      query = query.select(fields);
-    } else{
-      query = query.select('-__v');
-    }
-
-
-    console.log(`Query: ${JSON.stringify(queryString)}`);
-
     /* Here we are executing the query built above */
-    const allTours = await query;
+    const features = new APIFeature(Tour.find(), req.query) //This APIFeature is a class and it takes two params, (1) Mongo query obj (2) req.query str                .filter()
+                      .sorting()
+                      .limitFields()
+                      .paginate();
 
+    const allTours = await features.query;
     res.status(200).json({
       status: 'success',
       defaultStr: req.defaultShit,
@@ -104,14 +30,15 @@ exports.getAllTours = async (req, res) => {
       }
     });
   } catch(err){
-      console.log(`Unable to fetch all tours from Db: ${err}`);
-      res.status(500).json({
-        status:'failed',
-        msg: 'Unable to get all the trades from the db',
-        error: err
-      });
+    console.log(`Unable to fetch all tours from Db: ${err}`);
+    res.status(404).json({
+      status:'failed',
+      msg: 'Unable to get all the trades from the db',
+      error: err.message
+    });
   }
 };
+
 
 exports.getTour = async (req, res) => {
   try{
@@ -123,10 +50,11 @@ exports.getTour = async (req, res) => {
     res.status(404).json({
       status: 'failed',
       msg: 'Unable to fetch tour with id '+(req.params.id),
-      error: err
+      error: err.message
     })
   }
 };
+
 
 exports.getTourByName = async (req, res) => {
   console.log(`Fetching tour by name req query ${req.query}`);
@@ -163,6 +91,7 @@ exports.getTourByName = async (req, res) => {
   }
 };
 
+
 exports.addTour = async (req, res) => {
   /* const newTour = new Tour({});
   newTour.save(); */
@@ -178,10 +107,11 @@ exports.addTour = async (req, res) => {
     console.log(`Error in adding tour into Db ${err}`);
     res.status(400).json({
       status: 'failed',
-      msg: err
+      msg: err.message
     });
   }
 };
+
 
 exports.updateTour = async (req, res) => {
   try{
@@ -202,6 +132,7 @@ exports.updateTour = async (req, res) => {
     });
   }
 };
+
 
 exports.deleteTour = async (req, res) => {
   try{
@@ -236,6 +167,7 @@ exports.loadTours = async (req, res) => {
   }
 }
 
+
 exports.deleteAllTours = async (req, res) => {
   try{
       res.status(204).json({
@@ -246,5 +178,49 @@ exports.deleteAllTours = async (req, res) => {
       await Tour.deleteMany();
   } catch(err){
     console.log(err);
+  }
+}
+
+
+exports.getTourStats = async (req, res) => {
+  try{
+    /* 
+      Here we create an aggregate pipeline by adding a number of 'stages' in an array within the aggregate function
+    */
+      const stats = await Tour.aggregate([
+        {
+          $match: {ratingAverage: {$gte: 4.5}}
+        },
+        {
+          $group: {
+            _id: null,
+            //_id: {$toUpper: '$difficulty'}, //to get data stats based on 3 different types of difficluty and make the id field to upper case
+            numOfTours: {$sum: 1},
+            numOfRatins: {$sum: '$ratingsQuantity'},
+            avgRating: {$avg: '$ratingAverage'},
+            avgPrice: {$avg: '$price'},
+            minPrice: {$min: '$price'},
+            maxPrice: {$max: '$price'}
+          },
+          $sort: {
+             avgPrice: 1 // This is to sort based on the average price field. And 1 means in ascending order
+          },
+          /* Here we can see that we can also add repeating conditions to the aggregate pipeline */
+          $match:{
+            _id: {$ne: 'EASY'}
+          }
+        }
+      ]);
+
+      res.status(200).json({
+        status: 'success',
+        data: {stats}
+      });
+  } catch(err){
+    res.status(404).json({
+      status:'fail',
+      message: err.message,
+      scenario: 'Unable to get stats from function getTourStats'
+    });
   }
 }

@@ -32,4 +32,11 @@ router
 router.route('/delete-all')
   .delete(tourController.deleteAllTours);
 
+
+/* Top 5 cheap tours */
+router.route('/top-3-cheap').get(tourController.aliasTopTours, tourController.getAllTours);
+
+/* Get tour stats */
+router.route('/stats').get(tourController.getTourStats);
+
 module.exports = router;
