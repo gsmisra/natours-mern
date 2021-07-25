@@ -79,6 +79,7 @@ exports.getTourByName = async (req, res) => {
     } else{
       res.status(200).json({
         status: 'success',
+        numberOfResults: tourDataByName.length,
         data: tourDataByName
       });
     }
