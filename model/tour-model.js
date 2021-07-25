@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
+const validator = require('validator');
 
 
 /* Tours Schema - This is basically the data model of the request json
@@ -12,7 +13,10 @@ const toursSchema = new mongoose.Schema({
     name: {
       type: String,
       unique: [true, 'Tour Name should be unique'],
-      required: true
+      required: true,
+      maxlength: [40, 'Err Msg: Tour name must have <= 40 chars'],   //This is a mongooes internal data validator
+      minlength: [10, 'Err Msg: Tour name must have >= 10 chars']   //This is a mongooes internal data validator,
+      //validate: [validator.isAlpha, 'Err Msg: Tour name should contain only characters and no numbers'] // This from an external lib called validator
     },
     duration: {
       type: Number,
@@ -24,11 +28,16 @@ const toursSchema = new mongoose.Schema({
     },
     difficulty: {
       type: String,
-      required: [true, 'Tour difficulty is mandatory']
+      required: [true, 'Tour difficulty is mandatory'], 
+      enum: { values: ['easy','medium','difficult'],      //This is a mongooes internal data validator
+              message: 'Diffiulty should be either easy, medium, diffucult'   
+            }
     },
     ratingAverage: {
       type: Number,
-      default: 4.0
+      default: 4.0,
+      min: [1, 'Err msg: Rating must be above 1 to 5'], //This is a mongooes internal data validator
+      max: [5, 'Err Msg: Rating must be within 1-5']    //This is a mongooes internal data validator
     },
     ratingsQuantity: {
       type: Number,
@@ -38,7 +47,14 @@ const toursSchema = new mongoose.Schema({
       type: Number,
       required: [true, 'Tour must have a price']
     },
-    discount: Number,
+    discount: {type: Number,
+              validate: {
+                validator: function(val) {                  // This is a custom validator
+                  return val < this.price;                  /* Here val is the discount passed into the function as a param */
+                },                                          /* Here the .this() keyword will work only on create function as it points to the new or current document and not on update funciton  */
+              message: 'Error Msg: Discount ({VALUE}) should be less than tour  price'
+              }
+    },
     summary: {
       type: String,
       trim: true,
@@ -145,6 +161,8 @@ const toursSchema = new mongoose.Schema({
     Aggregation middleware 
     This will allow us to run hooks before and after aggregation
   */
+
+  //This part is not build yet
 
 
   /* Adding schema to a mongoose model */

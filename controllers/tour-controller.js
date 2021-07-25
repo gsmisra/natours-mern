@@ -113,10 +113,13 @@ exports.addTour = async (req, res) => {
   }
 };
 
-
+/* Sample API request url
+  localhost:8000/api/v1/tours/findByName?name=Slug
+*/
 exports.updateTour = async (req, res) => {
   try{
-    let updatedTour = await Tour.findOneAndUpdate({name: {"$regex": req.params.name}}, req.body, {
+    console.log(`Find tour by name containing ${req.query.name}`);
+    let updatedTour = await Tour.findOneAndUpdate({name: {"$regex": req.query.name}}, req.body, {
       new: true,
       runValidators: true
     });
@@ -128,7 +131,7 @@ exports.updateTour = async (req, res) => {
   } catch(err){
     res.status(404).json({
       status: 'failed',
-      msg: 'Unable to update tour with name '+(req.params.name),
+      msg: 'Unable to update tour with name '+(req.query.name),
       error: err.message
     });
   }

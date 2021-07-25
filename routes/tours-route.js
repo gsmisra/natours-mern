@@ -39,4 +39,5 @@ router.route('/top-3-cheap').get(tourController.aliasTopTours, tourController.ge
 /* Get tour stats */
 router.route('/stats').get(tourController.getTourStats);
 
+
 module.exports = router;
