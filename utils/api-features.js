@@ -5,6 +5,7 @@ class APIFeature {
       this.queryString = queryString;
     }
   
+    
     filter(){
       const queryObject = {...this.queryString};
       const excludedFields = ['page', 'limit', 'fields', 'sort'];
@@ -29,7 +30,11 @@ class APIFeature {
   
   
     sorting(){
-      /* Then sort the result based on some condition */
+      /* Then sort the result based on some condition 
+      
+        Example: localhost:8000/api/v1/tours?sort=price
+        localhost:8000/api/v1/tours?sort=price, ratingsAverage
+      */
       if(this.queryString.sort) {
         const sortBy = this.queryString.sort.split(',').join(' ');      
         this.query = this.query.sort( sortBy );

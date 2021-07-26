@@ -48,12 +48,12 @@ const toursSchema = new mongoose.Schema({
       required: [true, 'Tour must have a price']
     },
     discount: {type: Number,
-              validate: {
-                validator: function(val) {                  // This is a custom validator
-                  return val < this.price;                  /* Here val is the discount passed into the function as a param */
-                },                                          /* Here the .this() keyword will work only on create function as it points to the new or current document and not on update funciton  */
-              message: 'Error Msg: Discount ({VALUE}) should be less than tour  price'
-              }
+      validate: {
+        validator: function(val) {                  // This is a custom validator
+          return val < this.price;                  /* Here val is the discount passed into the function as a param */
+        },                                          /* Here the .this() keyword will work only on create function as it points to the new or current document and not on update funciton  */
+        message: 'Error Msg: Discount ({VALUE}) should be less than tour  price'
+      }
     },
     summary: {
       type: String,

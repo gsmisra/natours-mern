@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon server.js",
-    "start:prod": "NODE_ENV=production nodemon server.js"
+    "start:prod": "NODE_ENV=production nodemon server.js",
+    "debug": "ndb server.js"
   },
   "author": "Gaurav Misra",
   "license": "ISC",
@@ -18,6 +19,7 @@
     "express": "^4.17.1",
     "mongoose": "^5.13.2",
     "morgan": "^1.10.0",
+    "ndb": "^1.1.5",
     "prettier": "^2.3.2",
     "slugify": "^1.6.0",
     "validator": "^13.6.0"

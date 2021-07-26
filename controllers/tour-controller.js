@@ -12,10 +12,12 @@ exports.aliasTopTours = async (req, res, next) => {
   next();
 }
 
+
 exports.getAllTours = async (req, res) => {
   try{
     /* Here we are executing the query built above */
-    const features = new APIFeature(Tour.find(), req.query) //This APIFeature is a class and it takes two params, (1) Mongo query obj (2) req.query str                .filter()
+    const features = new APIFeature(Tour.find(), req.query)  //This APIFeature is a class and it takes two params, (1) Mongo query obj (2) req.query str.filter()
+                      .filter()
                       .sorting()
                       .limitFields()
                       .paginate();
