@@ -1,11 +1,12 @@
 class APIFeature {
+  
     constructor(query, queryString){
       console.log('API Feature constructor is called...')
       this.query = query;
       this.queryString = queryString;
     }
   
-    
+  
     filter(){
       const queryObject = {...this.queryString};
       const excludedFields = ['page', 'limit', 'fields', 'sort'];

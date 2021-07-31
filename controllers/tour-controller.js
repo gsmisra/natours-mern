@@ -207,15 +207,14 @@ exports.getTourStats = async (req, res) => {
             avgPrice: {$avg: '$price'},
             minPrice: {$min: '$price'},
             maxPrice: {$max: '$price'}
-          },
-          $sort: {
+          }},
+          {$sort: {
              avgPrice: 1 // This is to sort based on the average price field. And 1 means in ascending order
-          },
+          }},
           /* Here we can see that we can also add repeating conditions to the aggregate pipeline */
-          $match:{
+          {$match:{
             _id: {$ne: 'EASY'}
-          }
-        }
+          }}
       ]);
 
       res.status(200).json({

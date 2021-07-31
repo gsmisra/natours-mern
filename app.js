@@ -43,7 +43,7 @@ app.all('*', (req, res, next) => {
     status: 'fail',
     message: `Page not found ${req.originalUrl}`
   });
- */
+*/
 
   /* const err = new Error(`Page not found ${req.originalUrl}`); //This will be the err.status in the below global error handling middleware
   err.status = 'fail';
@@ -69,12 +69,6 @@ app.all('*', (req, res, next) => {
   Note such middleware should always have 4 params with err as the first one
 */
 app.use(globalErrorHandller);
-
-
-
-
-
-
 
 
 module.exports = app;

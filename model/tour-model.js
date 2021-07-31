@@ -167,5 +167,4 @@ const toursSchema = new mongoose.Schema({
 
   /* Adding schema to a mongoose model */
 const TourModel = mongoose.model('Tour', toursSchema);
-
 module.exports = TourModel;
