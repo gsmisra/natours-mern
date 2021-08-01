@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "@types/express-serve-static-core": "^4.17.24",
+    "bcryptjs": "^2.4.3",
     "dotenv": "^10.0.0",
     "eslint": "^7.30.0",
     "eslint-config-prettier": "^8.3.0",

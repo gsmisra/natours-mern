@@ -6,6 +6,7 @@ const userRouter = require('./routes/users-route');
 const AppError = require('./utils/error-handling/app-error');
 const globalErrorHandller = require('./controllers/error-controller');
 
+
 /* Middleware with 3rd party lib - Morgan. Used for data logging */
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));

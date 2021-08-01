@@ -1,7 +1,7 @@
 const fs = require('fs');
 const Tour = require('../model/tour-model');
 const APIFeature = require('../utils/api-features');
-
+const catchAsync = require('../utils/error-handling/catch-async');
 
 /* Middleware function to add alias to the getAllTour function */
 exports.aliasTopTours = async (req, res, next) => {
@@ -13,7 +13,7 @@ exports.aliasTopTours = async (req, res, next) => {
 }
 
 
-exports.getAllTours = async (req, res) => {
+exports.getAllTours = catchAsync(async (req, res) => {
   try{
     /* Here we are executing the query built above */
     const features = new APIFeature(Tour.find(), req.query)  //This APIFeature is a class and it takes two params, (1) Mongo query obj (2) req.query str.filter()
@@ -39,10 +39,10 @@ exports.getAllTours = async (req, res) => {
       error: err.message
     });
   }
-};
+});
 
 
-exports.getTour = async (req, res) => {
+exports.getTour = catchAsync(async (req, res) => {
   try{
     const tourData = await Tour.findById(req.params.id);
     res.status(200).json({
@@ -55,7 +55,7 @@ exports.getTour = async (req, res) => {
       error: err.message
     })
   }
-};
+});
 
 
 exports.getTourByName = async (req, res) => {
@@ -95,9 +95,18 @@ exports.getTourByName = async (req, res) => {
 };
 
 
-exports.addTour = async (req, res) => {
+exports.addTour = catchAsync(async (req, res, next) => {
   /* const newTour = new Tour({});
   newTour.save(); */
+
+/*   const newTour = await Tour.create(req.body);
+    res.status(201).send({
+      status: 'success',
+      data: {
+        tour: newTour,
+      }
+    }); */
+
   try{
     const newTour = await Tour.create(req.body);
     res.status(201).send({
@@ -113,7 +122,7 @@ exports.addTour = async (req, res) => {
       msg: err.message
     });
   }
-};
+});
 
 /* Sample API request url
   localhost:8000/api/v1/tours/findByName?name=Slug
