@@ -24,7 +24,8 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Please set a default password!'],
         minlength: [8, 'Password must of length >=8 chars'],
-        maxlength: [12, 'Password must of length <=12 chars']
+        maxlength: [12, 'Password must of length <=12 chars'],
+        select: false   //This will not send out the password back in the response
     },
     passwordConfirmed: {
         type: String,
@@ -34,7 +35,8 @@ const userSchema = new mongoose.Schema({
                 return el === this.password;
             },
             message: 'Err: Password are not same!'
-        }
+        },
+        select: false   //This will not send out the password back in the response
     }
 });
 
@@ -55,6 +57,17 @@ userSchema.pre('save', async function( next ){
 
     next();
 })
+
+
+/* 
+    Comparing the password of a user trying to login 
+    vs the encrytped pw in the Db of the same user
+
+    For that we will use an instance method which will be avaialble on all documents in the db globally
+*/
+userSchema.method.correctPassword = async function(candidatePassword, userPassword){
+    return await bcrypt.compare(candidatePassword, userPassword);   //returns true or false
+}
 
 
 /* Creating the model out of the schema */

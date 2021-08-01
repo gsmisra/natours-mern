@@ -5,6 +5,41 @@ const tourRouter = require('./routes/tours-route');
 const userRouter = require('./routes/users-route');
 const AppError = require('./utils/error-handling/app-error');
 const globalErrorHandller = require('./controllers/error-controller');
+const swaggerJSDoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
+
+const swaggerDefinition = {
+  openapi: '3.0.0',
+  info: {
+    title: 'NATours API Documentation',
+    version: '1.0.0',
+    description:
+      'This is a REST API application made with Express. It retrieves data from Mongo Atlas for NaTours application.',
+    license: {
+      name: 'Licensed Under MIT',
+      url: 'https://spdx.org/licenses/MIT.html',
+    },
+    contact: {
+      name: 'Gaurav Misra',
+      //url: 'gaurav.sankar@tdsecurities.com',
+    },
+  },
+  servers: [
+    {
+      url: `http://localhost:${process.env.PORT}/api/v1/`,
+      description: 'Development server',
+    },
+  ],
+};
+
+const options = {
+  swaggerDefinition,
+  // Paths to files containing OpenAPI definitions
+  apis: ['./routes/*.js'],
+};
+
+const swaggerSpec = swaggerJSDoc(options);
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 
 /* Middleware with 3rd party lib - Morgan. Used for data logging */
@@ -14,6 +49,7 @@ if (process.env.NODE_ENV === 'development') {
 
 /* Middleware to send json body through express */
 app.use(express.json());
+
 
 /* A typical middleware. It will always contain a third argument. The 3rd argument can be called anything. 
     The last line of a middleware should always be the 3rd argument as a function call next();
