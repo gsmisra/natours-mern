@@ -64,11 +64,23 @@ userSchema.pre('save', async function( next ){
     vs the encrytped pw in the Db of the same user
 
     For that we will use an instance method which will be avaialble on all documents in the db globally
+
+    params:
+    candidatePassword - password of the current user trying to login
+    userPassword
 */
-userSchema.method.correctPassword = async function(candidatePassword, userPassword){
-    return await bcrypt.compare(candidatePassword, userPassword);   //returns true or false
+userSchema.methods.correctPassword = async function(currentUserPassword, existingUserPassword){
+    return await bcrypt.compare(currentUserPassword, existingUserPassword);   //returns true or false after comparing the two password
 }
 
+
+/* 
+    Here we check if the user has changed the password after the JWT token was issued
+*/
+userSchema.methods.changedPasswordAfter = async function(JWTCreatedtimeStamp){
+    
+    return false;
+}
 
 /* Creating the model out of the schema */
 const UserModel = mongoose.model('User', userSchema);

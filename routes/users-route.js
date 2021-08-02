@@ -33,13 +33,14 @@ router.use((req, res, next) => {
  */
 router
   .route('/')
-  .get(UserControllers.getAllUsers);
+  .get(UserControllers.getAllUsers)
+  .delete(UserControllers.deleteAllUsers);
 
-router
+/* router
   .route('/:Id')
   .get(UserControllers.getUser)
-  .patch(UserControllers.updateUser)
-  .delete(UserControllers.deleteUser);
+  .patch(UserControllers.updateUser) */
+
 
 router.post('/signup', authController.signup);
 router.post('/login', authController.login);

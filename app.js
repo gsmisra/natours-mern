@@ -59,6 +59,7 @@ app.use((req, res, next) => {
   console.log('Hello from the middle-ware');
   req.requestTime = new Date().toISOString();
   req.defaultShit = 'Default shit into api';
+  //console.log(req.headers);
   next();
 });
 

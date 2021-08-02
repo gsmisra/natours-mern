@@ -185,12 +185,12 @@ exports.loadTours = async (req, res) => {
 
 exports.deleteAllTours = async (req, res) => {
   try{
-      res.status(204).json({
-      status: 'success',
-      msg: 'All data deleted'});
-
       /* Passing an empty object means it matches all records and will delete all */
       await Tour.deleteMany();
+
+      res.status(204).json({
+        status: 'success',
+        msg: 'All data deleted'});
   } catch(err){
     console.log(err);
   }

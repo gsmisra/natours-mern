@@ -30,6 +30,13 @@ exports.getAllUsers = async (req, res) => {
 
 exports.getUser = (req, res) => {};
 
-exports.updateUser = (req, res) => {};
 
-exports.deleteUser = (req, res) => {};
+exports.deleteAllUsers = async (req, res) => {
+  exports.updateUser = (req, res) => {};
+  try{
+    await User.deleteMany({});
+    res.status(204).send('All data deleted in User schema!');
+  }catch(err){
+
+  }
+};

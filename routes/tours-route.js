@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const tourController = require('../controllers/tour-controller');
+const authController = require('../controllers/auth-controller');
 
 
 /* This is a param middleware function that executes only when there is a certain type of param in the request api */
@@ -25,7 +26,7 @@ Router definition */
  */
 router
   .route('/')
-  .get(tourController.getAllTours)
+  .get(authController.protect, tourController.getAllTours)   //Here the protect middileware fn will run before the getAllTours route
 
   /**
  * @swagger
