@@ -25,7 +25,8 @@ exports.signup = catchAsync(async(req, res, next) => {
             name: req.body.name,
             email: req.body.email,
             password: req.body.password,
-            passwordConfirmed: req.body.passwordConfirmed
+            passwordConfirmed: req.body.passwordConfirmed,
+            passwordChangedAt: req.body.passwordChangedAt
         });
 
         let token = signInToken(newUser._id);
@@ -98,41 +99,42 @@ exports.protect = catchAsync(async (req, res, next) => {
     let token;
     let decodedtoken;
     /* Logical steps:*/
-        // 1_ get the uer token and check if its !null
-        if(req.headers.authorization && req.headers.authorization.startsWith('auth')){
-            token = req.headers.authorization.split(' ')[1];
-        }
+    // 1_ get the uer token and check if its !null
+    if(req.headers.authorization && req.headers.authorization.startsWith('auth')){
+        token = req.headers.authorization.split(' ')[1];
+    }
 
-        // 2_ validate the token if its valid using the jwt algo
-        if(!token) {
-            return next(new AppError('You need to be logged in to view this informaiton!', 403));
-        } else{
-            try{
-                decodedtoken = await promisify (jwt.verify)(token, process.env.JWT_SECRET);
-                console.log(decodedtoken);
-            } catch(err){
-                res.status(401).json({
-                    status: 'OK',
-                    message: 'Your token has expired! Please relogin.',
-                    err: err.message
-                });
-            }
+    // 2_ validate the token if its valid using the jwt algo
+    if(!token) {
+        return next(new AppError('You need to be logged in to view this informaiton!', 403));
+    } else{
+        try{
+            decodedtoken = await promisify (jwt.verify)(token, process.env.JWT_SECRET);
+            console.log(decodedtoken);
+        } catch(err){
+            res.status(401).json({
+                status: 'OK',
+                message: 'Your token has expired! Please relogin.',
+                err: err.message
+            });
         }
-        // 3_ check if user still exist
-        /* 
-            decodedtoken is the object we get from above step. From this we can get the id and pass it
-            to the findById () method.
-        */
-        let currectLoggedinUser = await User.findById( decodedtoken.id );
-        if(!currectLoggedinUser){
-            return next(new AppError('Looks like your token is valid but your user id is no where to be found!', 403));
-        }
+    }
+    // 3_ check if user still exist
+    /* 
+        decodedtoken is the object we get from above step. From this we can get the id and pass it
+        to the findById () method.
+    */
+    let currectLoggedinUser = await User.findById( decodedtoken.id );
+    if(!currectLoggedinUser){
+        return next(new AppError('Looks like your token is valid but your user id is no where to be found!', 403));
+    }
 
-        // 4_ check if user changed password after the jwt token was issued
-        /* 
-            
-        */
-        // 5_ only then allow next() routes
+    // 4_ check if user changed password after the jwt token was issued
+    if(currectLoggedinUser.changedPasswordAfter(decodedtoken.iat));{
+        return next(new AppError('Looks like you have recently changed your password! Please relogin.', 403));
+    }
     
+    // 5_ only then allow next() routes and grant access to protected route
+    req.user = currectLoggedinUser;
     next();
 })

@@ -37,6 +37,10 @@ const userSchema = new mongoose.Schema({
             message: 'Err: Password are not same!'
         },
         select: false   //This will not send out the password back in the response
+    },
+    passwordChangedAt: {
+        type: Date,
+        select: true
     }
 });
 
@@ -77,9 +81,16 @@ userSchema.methods.correctPassword = async function(currentUserPassword, existin
 /* 
     Here we check if the user has changed the password after the JWT token was issued
 */
-userSchema.methods.changedPasswordAfter = async function(JWTCreatedtimeStamp){
+userSchema.methods.changedPasswordAfter = function(JWTCreatedTimeStamp){
+    console.log(`Checking if pw was changed ??? ${JWTCreatedTimeStamp}`);
+    if(this.passwordChangedAt){
+        let changedTimeStamp = parseInt(this.passwordChangedAt.getTime()/1000, 10);
+        console.log(`Looks like user has changed the password while an active token is available!`);
+        
+        return JWTCreatedTimeStamp < changedTimeStamp;
+    }
     
-    return false;
+    return false;   //return false by default meaning pw was not changed
 }
 
 /* Creating the model out of the schema */
